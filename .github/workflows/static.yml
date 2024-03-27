@@ -41,7 +41,7 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-materia
+      - run: pip install mkdocs-material
       - name: Build
         run: |
           set -ex
