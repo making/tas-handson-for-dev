@@ -1,0 +1,14 @@
+site_name: TAS Hands-on for Dev
+site_description: Tanzu Application Service Hands-on for Developers
+plugins:
+- techdocs-core
+nav:
+- Prerequisites: prerequisite.md
+- Login to Tanzu Application Service: login-to-tas.md
+- Deploy a "hello world" application: deploy-hello-world.md
+- Check Logs: logging.md
+- Apps Manager: apps-manager.md
+- App Metrics: app-metrics.md
+- External Properties: external-properties.md
+- Updating Application: update-application.md
+- PostgreSQL with Service Broker: postgresql-service-broker.md
