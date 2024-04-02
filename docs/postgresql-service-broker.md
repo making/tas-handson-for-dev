@@ -40,7 +40,7 @@ First, update the source code to access PostgreSQL. Add the following three `<de
     </dependency>
 ```
 
-`src/main/java/com/example/VehicleController.java`
+Create `src/main/java/com/example/VehicleController.java` and describe the below code:
 
 ```java
 package com.example;
@@ -105,7 +105,7 @@ public class VehicleController {
 }
 ```
 
-`src/main/resources/db/migration/V1__init.sql`
+Create `src/main/resources/db/migration/V1__init.sql` and describe the below code:
 
 ```sql
 CREATE TABLE vehicle
@@ -132,18 +132,18 @@ INSERT INTO vehicle(name)
 VALUES ('Aygo');
 ```
 
-
-`application.properties`
+Create `application.properties` and describe the below code:
 
 ```properties
 spring.datasource.driver-class-name=org.postgresql.Driver
-# Local用のダミー設定
+# dummy configuration for local dev
 spring.datasource.url=jdbc:postgresql://localhost:5432/car
 spring.datasource.username=${USER}
 spring.datasource.password=
 
 ```
 
+Build the soruce code and generate the jar file using the following command:
 
 ```
 ./mvnw clean package -Dmaven.test.skip=true
@@ -151,6 +151,9 @@ spring.datasource.password=
 
 ## Create a service instance
 
+The unit of resources created with Service Broker is called a "service instance".
+
+Now, we will create a PostgreSQL service instance with `cf create-service` command as follows:
 
 ```
 cf create-service postgres on-demand-postgres-small vehicle-db
@@ -161,6 +164,8 @@ Creating service instance vehicle-db in org handson-22297 / space demo as tmaki.
 Create in progress. Use 'cf services' or 'cf service vehicle-db' to check operation status.
 OK
 ```
+
+Service instance creation is done asynchronously. You can check the creation progress with the following command:
 
 ```
 cf service vehicle-db
@@ -190,7 +195,11 @@ Showing status of last operation:
 ...
 ```
 
+After a while, if the `status` changes to `create succeeded`, the creation was successful.
+
 ## Deploy the application
+
+Bind the service instance to the application by specifying the service instance name in `services` in `manifest.yml`. Change your `manifest.yml` as follows:
 
 ```yaml
 applications:
@@ -215,12 +224,17 @@ applications:
     API_KEY: ${vcap.services.hello.credentials.api-key}
 ```
 
+Push the application:
+
 ```
 cf push --strategy rolling
 ```
 
+You can check the service instances bound to the `hello-cf` app from Apps Manager. Click "Services" on the left menu to confirm.
+
 <img width="1024" alt="image" src="https://github.com/making/blog.ik.am/assets/106908/74ae2665-18a1-457c-a038-588334d1dfd1">
 
+Access your deployed app.
 
 ```bash
 HOST=$(cf curl /v2/apps/$(cf app hello-cf --guid)/routes | jq -r ".resources[0].entity.host")
@@ -319,6 +333,8 @@ curl -s https://${HOST}.apps.dhaka.cf-app.com/vehicles | jq .
 ]
 ```
 
+Check the database connection information passed from the service instance using the `cf env` command.
+
 ```
 $ cf env hello-cf
 Getting env variables for app hello-cf in org handson-22297 / space demo as tmaki...
@@ -364,6 +380,8 @@ VCAP_SERVICES: {
 ...
 ```
 
+We did not do any special configuration for the application to use this connection information. During `cf push`, Java Buildpack automatically adds a library called "[Java Cf Env](https://github.com/pivotal-cf/java-cfenv)", and this library automatically overwrites the properties for accessing the database in the Spring Boot app from the connection information passed from the service instance. Therefore, the application can connect to the service instance without any special settings on the application side.
+
 ```
    Downloaded app package (22.1M)
    -----> Java Buildpack v4.66.0 (offline) | https://github.com/cloudfoundry/java-buildpack#9e8f9bec
@@ -371,6 +389,8 @@ VCAP_SERVICES: {
    -----> Downloading Java Cf Env 3.1.5 from https://java-buildpack.cloudfoundry.org/java-cfenv/java-cfenv-3.1.5.jar (found in cache)
    Exit status 0
 ```
+
+Confirm that the following message is output using the `cf logs` command.
 
 
 ```
@@ -382,12 +402,18 @@ cf logs hello-cf --recent
    2024-03-15T18:34:10.42+0900 [APP/PROC/WEB/1] OUT 2024-03-15T09:34:10.422Z  INFO 25 --- [           main] i.p.c.s.boot.CfEnvironmentPostProcessor  : Setting null properties from bound service [hello] using io.pivotal.cfenv.spring.boot.CredHubCfEnvProcessor
 ```
 
-`postgresql://pgadmin:205AHMsxJ943u71p68wL@10.0.8.71:5432/postgres`
+## Access the PostgreSQL instance with psql command
 
+The connection destination `postgresql://pgadmin:205AHMsxJ943u71p68wL@10.0.8.71:5432/postgres` uses a private IP and cannot be accessed publicly.
+How can I access this PostgreSQL instance using the `psql` command?
+
+You can do it with ssh port-forwarding using `cf ssh` command.
 
 ```
 cf ssh hello-cf -L 5432:10.0.8.71:5432
 ```
+
+This allows you to connect to the database from your local terminal using the `psql` command as follows.
 
 ```
 psql postgresql://pgadmin:205AHMsxJ943u71p68wL@127.0.0.1:5432/postgres
