@@ -10,5 +10,6 @@ nav:
 - Apps Manager: apps-manager.md
 - App Metrics: app-metrics.md
 - External Properties: external-properties.md
-- Updating Application: update-application.md
+- Update Application: update-application.md
 - PostgreSQL with Service Broker: postgresql-service-broker.md
+- Execute batch processing with Task: task.md

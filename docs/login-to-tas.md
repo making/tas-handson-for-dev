@@ -66,7 +66,7 @@ cf curl /info | jq .
 ```json
 {
   "name": "Small Footprint VMware Tanzu Application Service",
-  "build": "5.0.9-build.2",
+  "build": "5.0.10-build.2",
   "support": "https://tanzu.vmware.com/support",
   "version": 0,
   "description": "https://docs.vmware.com/en/VMware-Tanzu-Application-Service/5.0/tas-for-vms/runtime-rn.html",
